@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import Project
+from .models import HealthRecord
 
-class ProjectSerializer(serializers.ModelSerializer):
+class HealthRecordSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Project
+        model = HealthRecord
         fields = '__all__'
+        read_only_fields = ('risk_score', 'created_at')
