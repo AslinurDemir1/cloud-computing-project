@@ -78,7 +78,7 @@ Uygulama artık güvenli bir katmana sahiptir.
 
 ## 📊 Video Sunumu
 PDF gereksinimlerine göre hazırlanan 10 dakikalık teknik sunuma şu linkten ulaşabilirsiniz:
-[Buraya Video Linki Gelecek]
+[[Buraya Video Linki Gelecek](https://drive.google.com/file/d/1vd2jde8j0fXTv3P7KxJD0sWM3mBYhxig/view?usp=sharing)]
 
 ## 📝 Hazırlayan
 Aslınur Demir - Bulut Bilişim Dersi (3522)
