@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Nginx proxy kullandığından /api/ yeterli (aynı origin)
+        VITE_API_URL: /api/
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

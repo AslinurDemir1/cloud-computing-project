@@ -9,37 +9,53 @@ class HealthRecordViewSet(viewsets.ModelViewSet):
     queryset = HealthRecord.objects.all()
     serializer_class = HealthRecordSerializer
 
-    def calculate_risk(self, age, sugar_level):
-        """Basit bir Tıbbi Risk Algoritması Simülasyonu"""
-        risk_score = "Düşük Risk"
+    def calculate_risk(self, data):
+        """Çok Faktörlü Gelişmiş Sağlık Risk Analiz Motoru"""
+        age = data.get('age')
+        sugar = data.get('sugar_level')
+        height = data.get('height')
+        weight = data.get('weight')
+        is_smoking = data.get('is_smoking')
+        activity = data.get('activity_level')
         
-        if sugar_level > 200:
-            risk_score = "Yüksek Risk (Aşırı Şeker)"
-        elif sugar_level > 140:
-            risk_score = "Orta Risk"
-        elif sugar_level < 70:
-            risk_score = "Yüksek Risk (Hipoglisemi)"
-            
-        if age > 65 and risk_score == "Orta Risk":
-            risk_score = "Yüksek Risk (İleri Yaş + Orta Şeker)"
-            
-        return risk_score
+        # BMI Hesaplama (View katmanında da lazım olabilir)
+        height_m = height / 100
+        bmi = weight / (height_m * height_m)
+        
+        score = 0
+        reasons = []
+        
+        # Şeker Faktörü
+        if sugar > 180: score += 40; reasons.append("Kritik Şeker")
+        elif sugar > 120: score += 20; reasons.append("Yüksek Şeker")
+        
+        # BMI Faktörü
+        if bmi > 30: score += 25; reasons.append("Obezite")
+        elif bmi > 25: score += 10; reasons.append("Fazla Kilo")
+        
+        # Yaş & Sigara Faktörü
+        if is_smoking == 'YES': score += 20; reasons.append("Sigara Kullanımı")
+        if age > 60: score += 15; reasons.append("İleri Yaş")
+        
+        # Aktivite Faktörü (İndirici)
+        if activity == 'HIGH': score -= 10
+        elif activity == 'LOW': score += 10; reasons.append("Hareketsiz Yaşam")
+        
+        # Sonuç Belirleme
+        if score >= 60: risk = "Kritik Risk 🚨"
+        elif score >= 40: risk = "Yüksek Risk ⚠️"
+        elif score >= 20: risk = "Orta Risk 🟡"
+        else: risk = "Düşük Risk ✅"
+        
+        if reasons:
+            risk += f" ({', '.join(reasons)})"
+        
+        return risk
 
     def perform_create(self, serializer):
-        data = serializer.validated_data
-        sugar_level = data.get('sugar_level')
-        age = data.get('age')
-        
-        risk_score = self.calculate_risk(age, sugar_level)
-        
-        # risk_score'u veritabanına otomatik enjekte et
-        serializer.save(risk_score=risk_score)
+        risk = self.calculate_risk(serializer.validated_data)
+        serializer.save(risk_score=risk)
 
     def perform_update(self, serializer):
-        data = serializer.validated_data
-        sugar_level = data.get('sugar_level', serializer.instance.sugar_level)
-        age = data.get('age', serializer.instance.age)
-        
-        risk_score = self.calculate_risk(age, sugar_level)
-        
-        serializer.save(risk_score=risk_score)
+        risk = self.calculate_risk(serializer.validated_data)
+        serializer.save(risk_score=risk)
